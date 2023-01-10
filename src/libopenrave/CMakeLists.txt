@@ -53,7 +53,6 @@ include(StaticPlugins) # Supplies the static_plugins interface library.
 
 include_directories(${FPARSER_INCLUDE_DIRS})
 add_library(libopenrave SHARED ${openrave_lib_SOURCES})
-add_dependencies(libopenrave interfacehashes_target)
 if( CRLIBM_FOUND )
   add_dependencies(libopenrave check_libm_accuracy-native) # forces check to be run before libopenrave is compile
 endif()
@@ -101,7 +100,6 @@ if( OPT_STATIC )
                                            LINK_FLAGS "${LIBOPENRAVE_LINK_FLAGS} ${FPARSER_LINK_FLAGS}")
   target_compile_definitions(libopenrave_static PRIVATE "OPENRAVE_STATIC_PLUGINS=${OPENRAVE_STATIC_PLUGINS}")
   target_link_libraries(libopenrave_static PRIVATE boost_assertion_failed crlibm openrave-md5 PUBLIC ${openrave_libraries} ${FPARSER_LIBRARIES})
-  add_dependencies(libopenrave_static interfacehashes_target)
   if( CRLIBM_FOUND )
     add_dependencies(libopenrave_static check_libm_accuracy-native) # forces check to be run before libopenrave is compilde
   endif()

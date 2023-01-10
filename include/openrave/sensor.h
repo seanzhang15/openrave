@@ -621,11 +621,6 @@ public:
 
 protected:
     std::string _name;     ///< name of the sensor
-
-private:
-    virtual const char* GetHash() const override {
-        return OPENRAVE_SENSOR_HASH;
-    }
 };
 
 } // end namespace OpenRAVE
