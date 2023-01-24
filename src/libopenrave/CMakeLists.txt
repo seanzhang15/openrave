@@ -64,7 +64,7 @@ set_target_properties(libopenrave PROPERTIES OUTPUT_NAME openrave${OPENRAVE_LIBR
                                   COMPILE_FLAGS "${LIBOPENRAVE_COMPILE_FLAGS} ${FPARSER_CXX_FLAGS} -DOPENRAVE_DLL_EXPORTS -DOPENRAVE_DLL"
                                   LINK_FLAGS "${LIBOPENRAVE_LINK_FLAGS} ${FPARSER_LINK_FLAGS}")
 target_compile_definitions(libopenrave PRIVATE "OPENRAVE_STATIC_PLUGINS=${OPENRAVE_STATIC_PLUGINS}")
-target_link_libraries(libopenrave PRIVATE boost_assertion_failed crlibm openrave-md5 PUBLIC Boost::filesystem ${openrave_libraries} ${FPARSER_LIBRARIES} ${Intl_LIBRARIES} ${CMAKE_DL_LIBS})
+target_link_libraries(libopenrave PRIVATE boost_assertion_failed crlibm openrave-md5 PUBLIC LibXml2::LibXml2 Boost::filesystem ${openrave_libraries} ${FPARSER_LIBRARIES} ${Intl_LIBRARIES} ${CMAKE_DL_LIBS})
 install(TARGETS libopenrave
   EXPORT openrave-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -99,7 +99,7 @@ if( OPT_STATIC )
                                            COMPILE_FLAGS "${LIBOPENRAVE_COMPILE_FLAGS} ${FPARSER_CXX_FLAGS}"
                                            LINK_FLAGS "${LIBOPENRAVE_LINK_FLAGS} ${FPARSER_LINK_FLAGS}")
   target_compile_definitions(libopenrave_static PRIVATE "OPENRAVE_STATIC_PLUGINS=${OPENRAVE_STATIC_PLUGINS}")
-  target_link_libraries(libopenrave_static PRIVATE boost_assertion_failed crlibm openrave-md5 PUBLIC ${openrave_libraries} ${FPARSER_LIBRARIES})
+  target_link_libraries(libopenrave_static PRIVATE boost_assertion_failed crlibm openrave-md5 PUBLIC LibXml2::LibXml2 ${openrave_libraries} ${FPARSER_LIBRARIES})
   if( CRLIBM_FOUND )
     add_dependencies(libopenrave_static check_libm_accuracy-native) # forces check to be run before libopenrave is compilde
   endif()
