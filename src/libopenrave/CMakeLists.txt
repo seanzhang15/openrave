@@ -53,9 +53,6 @@ include(StaticPlugins) # Supplies the static_plugins interface library.
 
 include_directories(${FPARSER_INCLUDE_DIRS})
 add_library(libopenrave SHARED ${openrave_lib_SOURCES})
-if( CRLIBM_FOUND )
-  add_dependencies(libopenrave check_libm_accuracy-native) # forces check to be run before libopenrave is compile
-endif()
 
 set_target_properties(libopenrave PROPERTIES OUTPUT_NAME openrave${OPENRAVE_LIBRARY_SUFFIX}
                                   SOVERSION 0 # always have it 0 since we're including the soversion as part of the library name
