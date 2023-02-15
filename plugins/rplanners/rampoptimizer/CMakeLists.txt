@@ -1,19 +1,17 @@
-add_library(rampoptimizer SHARED paraboliccommon.h paraboliccommon.cpp ramp.h ramp.cpp interpolator.h interpolator.cpp feasibilitychecker.h feasibilitychecker.cpp parabolicchecker.h parabolicchecker.cpp)
+add_library(rampoptimizer STATIC paraboliccommon.h paraboliccommon.cpp ramp.h ramp.cpp interpolator.h interpolator.cpp feasibilitychecker.h feasibilitychecker.cpp parabolicchecker.h parabolicchecker.cpp)
 target_link_libraries(rampoptimizer PRIVATE boost_assertion_failed PUBLIC libopenrave)
 set_target_properties(rampoptimizer PROPERTIES COMPILE_FLAGS "${PLUGIN_COMPILE_FLAGS}" LINK_FLAGS "${PLUGIN_LINK_FLAGS}")
-
-install(TARGETS rampoptimizer DESTINATION ${OPENRAVE_PLUGINS_INSTALL_DIR} COMPONENT ${PLUGINS_BASE})
 
 # python bindings
 if( OPT_PYTHON )
   # link
-  set(OPENRAVEPY_RAMPOPTIMIZER_LINKED_LIBRARIES openravepy_int rampoptimizer ${PYTHON_LIBRARIES} ${Boost_THREAD_LIBRARY} ${LAPACK_LIBRARIES})
+  set(OPENRAVEPY_RAMPOPTIMIZER_LINKED_LIBRARIES openravepy_int ${PYTHON_LIBRARIES} ${Boost_THREAD_LIBRARY} ${LAPACK_LIBRARIES})
   if(NOT USE_PYBIND11_PYTHON_BINDINGS)
     set(OPENRAVEPY_RAMPOPTIMIZER_LINKED_LIBRARIES ${OPENRAVEPY_RAMPOPTIMIZER_LINKED_LIBRARIES} ${Boost_PYTHON_LIBRARY})
   endif()
 
   add_library(openravepy_rampoptimizer SHARED openravepy_rampoptimizer.cpp)
-  target_include_directories(openravepy_rampoptimizer PUBLIC ${OPENRAVE_CORE_INCLUDE_LOCAL_DIRS} ${OPENRAVEPY_INCLUDE_LOCAL_DIRS})
+  target_include_directories(openravepy_rampoptimizer PRIVATE rampoptimizer PUBLIC ${OPENRAVE_CORE_INCLUDE_LOCAL_DIRS} ${OPENRAVEPY_INCLUDE_LOCAL_DIRS})
   target_link_libraries(openravepy_rampoptimizer
     PRIVATE
       boost_assertion_failed
