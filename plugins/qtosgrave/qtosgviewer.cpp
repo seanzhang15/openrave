@@ -22,6 +22,52 @@
 
 namespace qtosgrave {
 
+struct AveragedValueTextDrawCallback : public virtual osg::Drawable::DrawCallback
+{
+    AveragedValueTextDrawCallback(osg::Stats* stats, const std::string& name, int frameDelta, bool averageInInverseSpace, double multiplier):
+        _stats(stats),
+        _attributeName(name),
+        _frameDelta(frameDelta),
+        _averageInInverseSpace(averageInInverseSpace),
+        _multiplier(multiplier),
+        _tickLastUpdated(0)
+    {
+    }
+
+    /** do customized draw code.*/
+    virtual void drawImplementation(osg::RenderInfo& renderInfo,const osg::Drawable* drawable) const
+    {
+        osgText::Text* text = (osgText::Text*)drawable;
+
+        osg::Timer_t tick = osg::Timer::instance()->tick();
+        double delta = osg::Timer::instance()->delta_m(_tickLastUpdated, tick);
+
+        if (delta>50) // update every 50ms
+        {
+            _tickLastUpdated = tick;
+            double value;
+            if (_stats->getAveragedAttribute( _attributeName, value, _averageInInverseSpace))
+            {
+                char tmpText[128];
+                sprintf(tmpText,"%4.2f",value * _multiplier);
+                text->setText(tmpText);
+            }
+            else
+            {
+                text->setText("");
+            }
+        }
+        text->drawImplementation(renderInfo);
+    }
+
+    osg::ref_ptr<osg::Stats>    _stats;
+    std::string                 _attributeName;
+    int                         _frameDelta;
+    bool                        _averageInInverseSpace;
+    double                      _multiplier;
+    mutable osg::Timer_t        _tickLastUpdated;
+};
+
 #define ITEM_DELETER boost::bind(DeleteItemCallbackSafe,weak_viewer(),_1)
 
 void DeleteItemCallbackSafe(QtOSGViewerWeakPtr wpt, Item* pItem)
@@ -284,6 +330,27 @@ void QtOSGViewer::_InitGUI(bool bCreateStatusBar, bool bCreateMenu)
     }
 
     resize(1024, 768);
+
+    _posgWidget->GetViewer()->getViewerStats()->collectStats("frame_rate", true);
+
+    osg::ref_ptr<osgText::Text> frameRateValue = new osgText::Text;
+    osg::ref_ptr<osg::Geode> geode(new osg::Geode());
+    geode->addDrawable( frameRateValue.get() );
+    _posgWidget->GetFigureRoot()->insertChild(0, geode);
+
+    frameRateValue->setColor(osg::Vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    //frameRateValue->setFont(_font);
+    frameRateValue->setCharacterSize(2.0f);
+    frameRateValue->setPosition(osg::Vec3(0.0f, 0.0f, 2.0f));
+    frameRateValue->setText("0.0");
+    frameRateValue->setDataVariance(osg::Object::DYNAMIC);
+
+    //frameRateValue->setBackdropColor( osg::Vec4( 1.0, 1.0f, 1.0f, 1.0f ) );
+    //frameRateValue->setBackdropType( osgText::Text::OUTLINE );
+    frameRateValue->setAlignment( osgText::Text::CENTER_CENTER );
+    frameRateValue->setAxisAlignment( osgText::Text::SCREEN );
+
+    frameRateValue->setDrawCallback(new AveragedValueTextDrawCallback(_posgWidget->GetViewer()->getViewerStats(),"Frame rate",-1, true, 1.0));
 
     // toggle switches
     _bDisplayGrid = false;
